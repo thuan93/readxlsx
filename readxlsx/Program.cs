@@ -7,6 +7,11 @@ using MECEList.DatabaseContext;
 using System.Collections.Generic;
 using MECEList.Entities.Models;
 using readxlxstodb;
+using System.Linq;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text;
+using Newtonsoft.Json;
 
 internal class Program
 {
@@ -14,205 +19,98 @@ internal class Program
     {
 
         //Sheet1
-        var attribute = ReadExcelFile("../TV.xlsx", "C2", "FY2", 2);
-
-        var items = ReadExcelFile("../TV.xlsx", "C3", "FY3", 2);
-
-        var lists = ReadExcelFile("../TV.xlsx", "A4", "B94", 2);
-
-        var allSheet1 = ReadExcelFile("../TV.xlsx", "C4", "FY94", 2);
-
-        //Sheet2
-        var attribute2 = ReadExcelFile("../TV.xlsx", "C2", "BX2", 3);
-
-        var items2 = ReadExcelFile("../TV.xlsx", "C3", "BX3", 3);
-
-        var allSheet2 = ReadExcelFile("../TV.xlsx", "C4", "BX94", 3);
-
-        var allItems = new List<Item>();
-
-        var allList = new List<List>();
-
-        //Category
-        var categorys = new List<Category>()
+        var Jan = ReadExcelFile("../TV.xlsx", "B4", "AF21", 1);
+        var Feb = ReadExcelFile("../TV.xlsx", "B4", "AF21", 2);
+        var Mar = ReadExcelFile("../TV.xlsx", "B4", "AF21", 3);
+        var Apr = ReadExcelFile("../TV.xlsx", "B4", "AF21", 4);
+        var May = ReadExcelFile("../TV.xlsx", "B4", "AF21", 5);
+        var Jul = ReadExcelFile("../TV.xlsx", "B4", "AF21", 6);
+        var Jun = ReadExcelFile("../TV.xlsx", "B4", "AF21", 7);
+        var Aug = ReadExcelFile("../TV.xlsx", "B4", "AF21", 8);
+        var Sep = ReadExcelFile("../TV.xlsx", "B4", "AF21", 9);
+        var Oct = ReadExcelFile("../TV.xlsx", "B4", "AF21", 10);
+        var Nov = ReadExcelFile("../TV.xlsx", "B4", "AF21", 11);
+        var Dec = ReadExcelFile("../TV.xlsx", "B4", "AF21", 12);
+        var Todos = new List<Todo>
         {
-            new Category
-            {
-                Id = 17,
-                Categoryid = 30,
-                Name = "肉料理",
-                Rootid = 7
-            },
-            new Category
-            {
-                Id = 18,
-                Categoryid = 31,
-                Name = "魚料理",
-                Rootid = 7
-            },
-            new Category
-            {
-                Id = 19,
-                Categoryid = 32,
-                Name = "野菜料理",
-                Rootid = 7
-            },
-            new Category
-            {
-                Id = 20,
-                Categoryid = 33,
-                Name = "汁物・鍋など",
-                Rootid = 7
-            },
-            new Category
-            {
-                Id = 21,
-                Categoryid = 34,
-                Name = "丼もの・麺類など",
-                Rootid = 7
-            },
+            CreateTodo("1",Jan),
+            CreateTodo("2",Feb),
+            CreateTodo("3",Mar),
+            CreateTodo("4",Apr),
+            CreateTodo("5",May),
+            CreateTodo("6",Jul),
+            CreateTodo("7",Jun),
+            CreateTodo("8",Aug),
+            CreateTodo("9",Sep),
+            CreateTodo("10",Oct),
+            CreateTodo("11",Nov),
+            CreateTodo("12",Dec)
         };
+        var json = JsonConvert.SerializeObject(Todos, Formatting.Indented);
+        //Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<object>>(Encoding.Default.GetString(decompressed), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All });
+        string fileName = "mecelist.json";
+        //var json = JsonSerializer.Serialize<List<Todo>>(Todos);
+        File.WriteAllText(fileName, json);
+    }
 
-        //Attribute
-        var allAtribute = new List<Attrib>();
-        for (int i = 0; i < attribute[0].Count(); i++)
+    public static Todo CreateTodo(string month, List<object[]> jan)
+    {
+        var todo1 = new Todo();
+        todo1.Month = month;
+        todo1.Day = new List<Day>();
+        for (int i = 0; i < 31; i++)
         {
-            if (attribute[0][i] is not string str)
-                continue;
-            var att = new Attrib
+            todo1.Day.Add(new Day
             {
-                Id = allAtribute.LastOrDefault() != null ? allAtribute.LastOrDefault().Id + 1 : 30,
-                Name = str,
-                Rootid = 5,
-                AttribId = allAtribute.LastOrDefault() != null ? allAtribute.LastOrDefault().AttribId + 1 : 31,
-            };
-
-            allAtribute.Add(att);
-        }
-
-        for (int i = 0; i < attribute2[0].Count(); i++)
-        {
-            if (attribute2[0][i] is not string str || string.IsNullOrEmpty(str))
-                continue;
-            var att = new Attrib
-            {
-                Id = allAtribute.LastOrDefault().Id + 1,
-                Name = str,
-                Rootid = 5,
-                AttribId = allAtribute.LastOrDefault().AttribId + 1
-            };
-
-            allAtribute.Add(att);
-        }
-
-        //Lists
-        for (int i = 0; i < lists.Count; i++)
-        {
-            if (lists[i][0] is not string str)
-                continue;
-            if (lists[i][1] is not double categoryId)
-            {
-                allList.Add(new List
+                Title = $"{i + 1}",
+                WhatDays = new WhatDay
                 {
-                    Id = 53 + i,
-                    RootId = 5,
-                    ListId = 143 + i,
-                    ListName = str,
-                    Categoryid = -1
-                });
-                continue;
-            }
-            var category = categorys[(int)categoryId - 1];
-            var lst = new List
-            {
-                Id = 53 + i,
-                RootId = 7,
-                ListId = 143 + i,
-                ListName = str,
-                Categoryid = category.Id,
-                CategoryName = category.Name,
-            };
-
-            allList.Add(lst);
-        }
-
-        
-
-        for (int i = 0; i < allSheet1.Count; ++i)
-        {
-            var list = allList[i];
-            Attrib oldAttribute = null;
-
-            for (int j = 0; j < allSheet1[i].Count(); j++)
-            {
-                var item = new Item();
-                var attrName = attribute[0][j];
-                if (attrName != null && attrName is string attrstr)
+                    WhatDays = new List<string>()
+                },
+                BirthDays = new BirthDay
                 {
-                    var found = allAtribute.FirstOrDefault(x => x.Name.Contains(attrstr));
-                    if (found != null)
-                        oldAttribute = found;
+                    BirthDays = new List<string>()
+                },
+                Events = new Event
+                {
+                    Evets = new List<string>()
                 }
-
-                if (allSheet1[i][j] is not string str)
-                {
-                   continue;
-                }
-                item.Attrib = oldAttribute.AttribId;
-                item.ListId = list.ListId;
-                item.ItemId = allItems.Count > 0 ? allItems.Max(x=>x.ItemId) + 1 : 1929;
-                item.Id = item.ItemId;
-                if (items[0][j] is not string name)
-                    continue;
-                item.ItemName = name;
-
-                allItems.Add(item);
-            }
-            
+            });
         }
-
-        for (int i = 0; i < allSheet2.Count; ++i)
+        var birday = jan.GetRange(0, 6);
+        var whatday = jan.GetRange(6, 5);
+        var evets = jan.Skip(11);
+        foreach (var item in birday)
         {
-            var list = allList[i];
-
-            var attrName = allAtribute.LastOrDefault();
-
-            for (int j = 0; j < allSheet2[i].Count(); j++)
+            for (int i = 0; i < item.Length; i++)
             {
-                var item = new Item();
-
-                if (allSheet2[i][j] is not string str)
+                if (item[i] is string str)
                 {
-                    continue;
+                    todo1.Day[i].BirthDays.BirthDays.Add(str);
                 }
-                item.Attrib = attrName.AttribId;
-                item.ListId = list.ListId;
-                item.ItemId = allItems.Count > 0 ? allItems.Max(x => x.ItemId) + 1 : 1929;
-                item.Id = item.ItemId;
-                if (items2[0][j] is not string name)
-                    continue;
-                item.ItemName = name;
-
-                allItems.Add(item);
             }
         }
-
-        foreach (var item in allAtribute)
+        foreach (var item in whatday)
         {
-            DataHelper.InsertAttribute(item);
+            for (int i = 0; i < item.Length; i++)
+            {
+                if (item[i] is string str)
+                {
+                    todo1.Day[i].WhatDays.WhatDays.Add(str);
+                }
+            }
         }
-        foreach (var item in allList)
+        foreach (var item in evets)
         {
-            DataHelper.InsertList(item);
+            for (int i = 0; i < item.Length; i++)
+            {
+                if (item[i] is string str)
+                {
+                    todo1.Day[i].Events.Evets.Add(str);
+                }
+            }
         }
-        foreach (var item in categorys)
-        {
-            DataHelper.InsertCategory(item);
-        }
-        foreach (var item in allItems)
-        {
-            DataHelper.InsertItem(item);
-        }
+        return todo1;
     }
 
 
@@ -223,7 +121,7 @@ internal class Program
         var colStringStart = matchStart.Groups["col"].ToString();
         var colStart = int.Parse(colStringStart.Select((t, i) => (colStringStart[i] - 64) * Math.Pow(26, colStringStart.Length - i - 1)).Sum().ToString()) - 1;
         var rowStart = int.Parse(matchStart.Groups["row"].ToString()) - 2;
-
+        rowStart = rowStart > 0 ? rowStart : 0;
         var matchEnd = Regex.Match(CellEnd, @"(?<col>[A-Z]+)(?<row>\d+)");
         var colStringEnd = matchEnd.Groups["col"].ToString();
         var colEnd = int.Parse(colStringEnd.Select((t, i) => (colStringEnd[i] - 64) * Math.Pow(26, colStringEnd.Length - i - 1)).Sum().ToString()) - 1;
@@ -243,21 +141,57 @@ internal class Program
                 };
 
                 DataSet dataSet = reader.AsDataSet(conf);
+
                 DataRowCollection row = dataSet.Tables[intdexCell].Rows;
                 var rowList = new List<object[]>();
                 for (int i = rowStart; i < rowEnd - 1; i++)
                 {
                     object[] item = new object[colEnd - colStart + 1];
                     var point = 0;
+                    if (row.Count - 1 < i)
+                        continue;
                     for (int j = colStart; j <= colEnd; j++)
                     {
+                        if (row[i].ItemArray.Length - 1 < j)
+                            continue;
                         item[point] = row[i].ItemArray[j];
                         point++;
                     }
                     rowList.Add(item);
                 }
                 return rowList;
+
             }
         }
     }
+}
+
+public class Todo
+{
+    public string Month { get; set; }
+    public List<Day> Day { get; set; }
+
+}
+public class Day
+{
+    public string Title { get; set; }
+    public BirthDay BirthDays { get; set; }
+    public WhatDay WhatDays { get; set; }
+    public Event Events { get; set; }
+}
+
+public class BirthDay
+{
+    public string Title { get; set; } = "誕生日";
+    public List<string> BirthDays { get; set; }
+}
+public class WhatDay
+{
+    public string Title { get; set; } = "何の日";
+    public List<string> WhatDays { get; set; }
+}
+public class Event
+{
+    public string Title { get; set; } = "過去の出来事";
+    public List<string> Evets { get; set; }
 }
