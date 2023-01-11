@@ -7,6 +7,49 @@ namespace readxlxstodb
 {
     public static class DataHelper
     {
+        public static void InsertCelebrity(Celebrity celebrity)
+        {
+            try
+            {
+                var ctx = new MECEListContext();
+                ctx.Celebrities.Add(celebrity);
+                ctx.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        public static void InsertAnniversary(Anniversary anniversary)
+        {
+            try
+            {
+                var ctx = new MECEListContext();
+                ctx.Anniversaries.Add(anniversary);
+                ctx.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        public static void InsertEvent(Event events)
+        {
+            try
+            {
+                var ctx = new MECEListContext();
+                ctx.Events.Add(events);
+                ctx.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+
         public static void InsertCategory(Category category)
         {
             try

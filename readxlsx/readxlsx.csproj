@@ -13,10 +13,12 @@
     <None Remove="ExcelDataReader" />
     <None Remove="ExcelDataReader.DataSet" />
     <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
+    <None Remove="mecelist.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MECEListV2.db3" />
     <EmbeddedResource Include="TV.xlsx" />
+    <EmbeddedResource Include="mecelist.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
